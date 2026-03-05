@@ -17,7 +17,7 @@ function About() {
           Tengo 19 años y estudio Ingeniería en Ciencias de la Computación en la UCAH.
           Desarrollo software en C, C++, JavaScript y web. Aplico buenas prácticas
           de ingeniería en cada proyecto que tomo.
-        </p>
+        </p> 
         <div className="grid grid-cols-2 gap-px bg-[#1e1e1e]">
           {[
             { num: '19', label: 'Años' },
