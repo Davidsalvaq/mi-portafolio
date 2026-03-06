@@ -6,17 +6,17 @@ function Contact() {
   ]
 
   return (
-    <section id="contact" className="px-12 py-36 border-t border-[#1e1e1e] grid grid-cols-2 gap-20 items-center">
+    <section id="contact" className="px-6 md:px-12 py-24 md:py-36 border-t border-[#1e1e1e] grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
       <div>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-6 h-px bg-[#c9a96e]" />
           <span className="text-xs uppercase tracking-[0.2em] text-[#c9a96e]">Contacto</span>
         </div>
-        <h2 className="font-black leading-none tracking-tight mb-6" style={{fontFamily: 'Syne, sans-serif', fontSize: 'clamp(40px, 5vw, 80px)'}}>
+        <h2 className="font-black leading-none tracking-tight mb-6" style={{fontFamily: 'Syne, sans-serif', fontSize: 'clamp(36px, 5vw, 80px)'}}>
           Hablemos.<br />
           <span className="text-transparent" style={{WebkitTextStroke: '1px rgba(240,236,228,0.2)'}}>Construyamos.</span>
         </h2>
-        <p className="text-[#6b6760] text-sm leading-loose mb-12">
+        <p className="text-[#6b6760] text-sm leading-loose mb-10 md:mb-12">
           ¿Tienes un proyecto en mente o quieres colaborar? Estoy disponible.
         </p>
         <div className="flex flex-col">
@@ -30,9 +30,9 @@ function Contact() {
         </div>
       </div>
 
-      <div className="bg-[#161616] border border-[#1e1e1e] p-12">
+      <div className="bg-[#161616] border border-[#1e1e1e] p-8 md:p-12">
         <p className="text-xs uppercase tracking-[0.15em] text-[#6b6760] mb-4">Correo directo</p>
-        <p className="font-bold text-lg text-[#e8d5b0] mb-8" style={{fontFamily: 'Syne, sans-serif'}}>
+        <p className="font-bold text-base md:text-lg text-[#e8d5b0] mb-8 break-all" style={{fontFamily: 'Syne, sans-serif'}}>
           salvadorenginneer@gmail.com
         </p>
         <a href="mailto:salvadorenginneer@gmail.com"
@@ -48,3 +48,4 @@ function Contact() {
 }
 
 export default Contact
+

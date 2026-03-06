@@ -25,7 +25,7 @@ function Hero() {
       </div>
 
       {/* Nombre */}
-      <h1 className="font-black leading-none tracking-[-2px] md:tracking-[-3px] mb-8" style={{fontFamily: 'Syne, sans-serif', fontSize: 'clamp(52px, 8vw, 120px)'}}>
+      <h1 className="font-black leading-none mb-8" style={{fontFamily: 'Syne, sans-serif', fontSize: 'clamp(40px, 12vw, 120px)', letterSpacing: '-2px'}}>
         David<br />
         <span className="text-transparent" style={{WebkitTextStroke: '1px rgba(240,236,228,0.3)'}}>Quijada</span>
       </h1>
