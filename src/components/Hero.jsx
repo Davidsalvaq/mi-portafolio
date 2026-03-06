@@ -1,6 +1,6 @@
 function Hero() {
   return (
-    <section id="home" className="min-h-screen flex flex-col justify-end px-12 pb-20 relative overflow-hidden">
+    <section id="home" className="min-h-screen flex flex-col justify-end px-6 md:px-12 pb-16 md:pb-20 relative overflow-hidden">
 
       {/* Grid de fondo */}
       <div className="absolute inset-0"
@@ -12,30 +12,31 @@ function Hero() {
       />
 
       {/* Badge disponible */}
-      <div className="absolute top-24 right-12 flex items-center gap-3 px-5 py-3 border border-[#1e1e1e] bg-[#161616] text-[#6b6760] text-sm">
-        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-        Disponible para proyectos
+      <div className="absolute top-24 right-6 md:right-12 flex items-center gap-2 md:gap-3 px-3 md:px-5 py-2 md:py-3 border border-[#1e1e1e] bg-[#161616] text-[#6b6760] text-xs md:text-sm">
+        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
+        <span className="hidden sm:inline">Disponible para proyectos</span>
+        <span className="sm:hidden">Disponible</span>
       </div>
 
       {/* Eyebrow */}
-      <div className="flex items-center gap-3 mb-6 animate-fade-up">
+      <div className="flex items-center gap-3 mb-6">
         <div className="w-8 h-px bg-[#c9a96e]" />
         <span className="text-xs uppercase tracking-[0.15em] text-[#c9a96e]">Desarrollador Web · Honduras</span>
       </div>
 
       {/* Nombre */}
-      <h1 className="font-black leading-none tracking-[-3px] mb-8" style={{fontFamily: 'Syne, sans-serif', fontSize: 'clamp(52px, 8vw, 120px)'}}>
+      <h1 className="font-black leading-none tracking-[-2px] md:tracking-[-3px] mb-8" style={{fontFamily: 'Syne, sans-serif', fontSize: 'clamp(52px, 8vw, 120px)'}}>
         David<br />
         <span className="text-transparent" style={{WebkitTextStroke: '1px rgba(240,236,228,0.3)'}}>Quijada</span>
       </h1>
 
       {/* Bottom row */}
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-8 sm:gap-4">
         <p className="text-[#6b6760] text-sm leading-relaxed max-w-sm">
           <span className="text-white">Computer Science Student — UNICAH.</span><br />
           Construyendo interfaces que combinan lógica y estética.
         </p>
-        <div className="flex flex-col items-end gap-4">
+        <div className="flex flex-col items-start sm:items-end gap-4">
           <a href="#projects"
             className="flex items-center gap-3 bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200 hover:-translate-y-0.5">
             Ver proyectos
