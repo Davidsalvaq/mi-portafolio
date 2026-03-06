@@ -37,13 +37,14 @@ function Hero() {
           Construyendo interfaces que combinan lógica y estética.
         </p>
         <div className="flex flex-col items-start sm:items-end gap-4">
-          <a href="#projects"
-            className="flex items-center gap-3 bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200 hover:-translate-y-0.5">
-            Ver proyectos
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
+          <button
+  onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}
+  className="flex items-center gap-3 bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200 hover:-translate-y-0.5">
+  Ver proyectos
+  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+</button>
           <span className="text-xs uppercase tracking-widest text-[#6b6760] opacity-60">↓ Scroll para explorar</span>
         </div>
       </div>
