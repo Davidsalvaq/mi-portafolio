@@ -32,7 +32,7 @@ function StatCard({ label, value, started, suffix = '' }) {
 }
 
 function About() {
-  const [stats, setStats] = useState({ projects: 0, years_coding: 1, commitment: '100%', coffees: 999 })
+  const [stats, setStats] = useState({ projects: 0, years_coding: 2, commitment: '100%' })
   const [started, setStarted] = useState(false)
   const statsRef = useRef(null)
 
@@ -84,8 +84,8 @@ function About() {
           {/* Stats animados */}
           <div ref={statsRef} className="grid grid-cols-3 gap-3">
             <StatCard label="Proyectos" value={stats.projects} started={started} />
-            <StatCard label="Año coding" value={stats.years_coding} started={started} suffix="+" />
-            <StatCard label="Cafés ☕" value={stats.coffees} started={started} />
+            <StatCard label="Años coding" value={stats.years_coding} started={started} suffix="+" />
+            <StatCard label="Compromiso" value={stats.commitment} started={started} />
           </div>
         </div>
 
