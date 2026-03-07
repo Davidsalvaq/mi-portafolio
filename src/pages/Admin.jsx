@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { login, logout, getToken, getProjects, createProject, updateProject, deleteProject } from '../services/api'
 
-const TIMEOUT_MINUTES = 2
+const MAX_ATTEMPTS = 5
+const LOCKOUT_KEY = 'admin_lockout'
+const ATTEMPTS_KEY = 'admin_attempts'
+const INACTIVITY_LIMIT = 2 * 60 * 1000 // 2 minutos
+
 const emptyForm = {
   title_es: '', title_en: '',
   description_es: '', description_en: '',
@@ -18,50 +22,37 @@ function Admin() {
   const [authed, setAuthed] = useState(!!getToken())
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
+  const [attempts, setAttempts] = useState(() => parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0'))
+  const [lockedOut, setLockedOut] = useState(() => {
+    const lockout = localStorage.getItem(LOCKOUT_KEY)
+    return lockout ? Date.now() < parseInt(lockout) : false
+  })
   const [projects, setProjects] = useState([])
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
-  const [timeoutWarning, setTimeoutWarning] = useState(false)
 
-  // Auto-cierre de sesión por inactividad
-  const handleLogout = useCallback(() => {
-    logout()
-    setAuthed(false)
-    setTimeoutWarning(false)
-  }, [])
+  // Auto-cierre por inactividad
+  const resetTimer = useCallback(() => {
+    if (!authed) return
+    clearTimeout(window._adminTimer)
+    window._adminTimer = setTimeout(() => {
+      logout()
+      setAuthed(false)
+    }, INACTIVITY_LIMIT)
+  }, [authed])
 
   useEffect(() => {
     if (!authed) return
-
-    let warningTimer
-    let logoutTimer
-
-    const resetTimers = () => {
-      clearTimeout(warningTimer)
-      clearTimeout(logoutTimer)
-      setTimeoutWarning(false)
-
-      warningTimer = setTimeout(() => {
-        setTimeoutWarning(true)
-      }, (TIMEOUT_MINUTES * 60 - 30) * 1000) // 30 segundos antes avisa
-
-      logoutTimer = setTimeout(() => {
-        handleLogout()
-      }, TIMEOUT_MINUTES * 60 * 1000)
-    }
-
     const events = ['mousemove', 'keydown', 'click', 'scroll']
-    events.forEach(e => window.addEventListener(e, resetTimers))
-    resetTimers()
-
+    events.forEach(e => window.addEventListener(e, resetTimer))
+    resetTimer()
     return () => {
-      clearTimeout(warningTimer)
-      clearTimeout(logoutTimer)
-      events.forEach(e => window.removeEventListener(e, resetTimers))
+      events.forEach(e => window.removeEventListener(e, resetTimer))
+      clearTimeout(window._adminTimer)
     }
-  }, [authed, handleLogout])
+  }, [authed, resetTimer])
 
   useEffect(() => {
     if (authed) fetchProjects()
@@ -74,10 +65,33 @@ function Admin() {
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    if (lockedOut) return
+
     const ok = await login(password)
-    if (ok) { setAuthed(true); setLoginError('') }
-    else setLoginError('Contraseña incorrecta')
+    if (ok) {
+      setAuthed(true)
+      setLoginError('')
+      setAttempts(0)
+      localStorage.removeItem(ATTEMPTS_KEY)
+      localStorage.removeItem(LOCKOUT_KEY)
+    } else {
+      const newAttempts = attempts + 1
+      setAttempts(newAttempts)
+      localStorage.setItem(ATTEMPTS_KEY, newAttempts)
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        // Bloqueo máximo técnico: 24 horas
+        const lockUntil = Date.now() + 24 * 60 * 60 * 1000
+        localStorage.setItem(LOCKOUT_KEY, lockUntil)
+        setLockedOut(true)
+        setLoginError('locked')
+      } else {
+        setLoginError(`Contraseña incorrecta. ${MAX_ATTEMPTS - newAttempts} intento${MAX_ATTEMPTS - newAttempts === 1 ? '' : 's'} restante${MAX_ATTEMPTS - newAttempts === 1 ? '' : 's'}.`)
+      }
+    }
   }
+
+  const handleLogout = () => { logout(); setAuthed(false) }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -127,19 +141,39 @@ function Admin() {
         <h1 className="font-black text-4xl mb-8 text-white" style={{fontFamily: 'Syne, sans-serif'}}>
           Acceso<br />restringido.
         </h1>
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors"
-          />
-          {loginError && <p className="text-red-400 text-xs">{loginError}</p>}
-          <button type="submit" className="bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200">
-            Entrar
-          </button>
-        </form>
+
+        {lockedOut ? (
+          <div className="border border-red-900 bg-red-950/30 p-6">
+            <p className="text-red-400 text-xs leading-relaxed uppercase tracking-widest mb-2">Acceso bloqueado</p>
+            <p className="text-[#e8d5b0] text-sm leading-relaxed">
+              Has alcanzado el límite de intentos. Podrás intentarlo de nuevo en <span className="text-white font-bold">2,000 años</span> — ¡aproximadamente el mismo tiempo que tardó en construirse la Gran Muralla China!
+            </p>
+            
+          </div>
+        ) : (
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors"
+            />
+            {loginError && loginError !== 'locked' && (
+              <p className="text-red-400 text-xs">{loginError}</p>
+            )}
+            <button type="submit" className="bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200">
+              Entrar
+            </button>
+            {attempts > 0 && (
+              <div className="flex gap-1 mt-1">
+                {Array.from({length: MAX_ATTEMPTS}).map((_, i) => (
+                  <div key={i} className={`h-0.5 flex-1 ${i < attempts ? 'bg-red-500' : 'bg-[#1e1e1e]'}`} />
+                ))}
+              </div>
+            )}
+          </form>
+        )}
       </div>
     </div>
   )
@@ -147,15 +181,6 @@ function Admin() {
   // ── Panel ──────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-6 md:px-12 py-12">
-
-      {/* Aviso de inactividad */}
-      {timeoutWarning && (
-        <div className="fixed top-4 right-4 bg-[#161616] border border-[#c9a96e] px-6 py-4 text-xs text-[#e8d5b0] uppercase tracking-widest z-50">
-          ⚠️ Sesión cerrando por inactividad...
-        </div>
-      )}
-
-      {/* Header */}
       <div className="flex justify-between items-center mb-12">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -172,7 +197,6 @@ function Admin() {
 
       {msg && <p className="mb-6 text-sm text-[#e8d5b0]">{msg}</p>}
 
-      {/* Formulario */}
       <div className="border border-[#1e1e1e] p-8 mb-12">
         <h2 className="font-black text-xl text-white mb-6" style={{fontFamily: 'Syne, sans-serif'}}>
           {editing ? 'Editar proyecto' : 'Agregar proyecto'}
@@ -195,11 +219,11 @@ function Admin() {
           </select>
           <input placeholder="URL de imagen" value={form.image} onChange={e => setForm({...form, image: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors" />
-          <input placeholder="Tecnologías (separadas por coma: React, Node.js, MongoDB)" value={form.techs} onChange={e => setForm({...form, techs: e.target.value})}
+          <input placeholder="Tecnologías (separadas por coma)" value={form.techs} onChange={e => setForm({...form, techs: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors md:col-span-2" />
-          <input placeholder="URL de GitHub (opcional)" value={form.github_url} onChange={e => setForm({...form, github_url: e.target.value})}
+          <input placeholder="URL de GitHub" value={form.github_url} onChange={e => setForm({...form, github_url: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors" />
-          <input placeholder="URL del proyecto en vivo (opcional)" value={form.live_url} onChange={e => setForm({...form, live_url: e.target.value})}
+          <input placeholder="URL del proyecto en vivo" value={form.live_url} onChange={e => setForm({...form, live_url: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors" />
           <div className="flex items-center gap-3 md:col-span-2">
             <input type="checkbox" id="featured" checked={form.featured} onChange={e => setForm({...form, featured: e.target.checked})} />
@@ -220,7 +244,6 @@ function Admin() {
         </form>
       </div>
 
-      {/* Lista de proyectos */}
       <h2 className="font-black text-xl text-white mb-6" style={{fontFamily: 'Syne, sans-serif'}}>
         Proyectos ({projects.length})
       </h2>

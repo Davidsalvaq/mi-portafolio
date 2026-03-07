@@ -18,7 +18,12 @@ function Portfolio() {
         <p className="text-xs text-[#6b6760]">© 2026 David Salvador Quijada García</p>
         <div className="flex items-center gap-4">
           <p className="text-xs text-[#6b6760]">Diseñado y construido por mí.</p>
-          <a href="/admin" className="text-[#0a0a0a] hover:text-[#1e1e1e] transition-colors duration-200 select-none">·</a>
+          <a href="/admin" title="Admin" className="text-[#6b6760] hover:text-[#c9a96e] transition-colors duration-200">
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </a>
         </div>
       </footer>
     </div>
