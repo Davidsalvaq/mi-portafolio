@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { login, logout, getToken, getProjects, createProject, updateProject, deleteProject } from '../services/api'
 
+const TIMEOUT_MINUTES = 2
 const emptyForm = {
   title_es: '', title_en: '',
   description_es: '', description_en: '',
@@ -22,6 +23,45 @@ function Admin() {
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
+  const [timeoutWarning, setTimeoutWarning] = useState(false)
+
+  // Auto-cierre de sesión por inactividad
+  const handleLogout = useCallback(() => {
+    logout()
+    setAuthed(false)
+    setTimeoutWarning(false)
+  }, [])
+
+  useEffect(() => {
+    if (!authed) return
+
+    let warningTimer
+    let logoutTimer
+
+    const resetTimers = () => {
+      clearTimeout(warningTimer)
+      clearTimeout(logoutTimer)
+      setTimeoutWarning(false)
+
+      warningTimer = setTimeout(() => {
+        setTimeoutWarning(true)
+      }, (TIMEOUT_MINUTES * 60 - 30) * 1000) // 30 segundos antes avisa
+
+      logoutTimer = setTimeout(() => {
+        handleLogout()
+      }, TIMEOUT_MINUTES * 60 * 1000)
+    }
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll']
+    events.forEach(e => window.addEventListener(e, resetTimers))
+    resetTimers()
+
+    return () => {
+      clearTimeout(warningTimer)
+      clearTimeout(logoutTimer)
+      events.forEach(e => window.removeEventListener(e, resetTimers))
+    }
+  }, [authed, handleLogout])
 
   useEffect(() => {
     if (authed) fetchProjects()
@@ -38,8 +78,6 @@ function Admin() {
     if (ok) { setAuthed(true); setLoginError('') }
     else setLoginError('Contraseña incorrecta')
   }
-
-  const handleLogout = () => { logout(); setAuthed(false) }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -68,10 +106,7 @@ function Admin() {
 
   const handleEdit = (project) => {
     setEditing(project._id)
-    setForm({
-      ...project,
-      techs: project.techs.join(', ')
-    })
+    setForm({ ...project, techs: project.techs.join(', ') })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -113,6 +148,13 @@ function Admin() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-6 md:px-12 py-12">
 
+      {/* Aviso de inactividad */}
+      {timeoutWarning && (
+        <div className="fixed top-4 right-4 bg-[#161616] border border-[#c9a96e] px-6 py-4 text-xs text-[#e8d5b0] uppercase tracking-widest z-50">
+          ⚠️ Sesión cerrando por inactividad...
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center mb-12">
         <div>
@@ -153,11 +195,11 @@ function Admin() {
           </select>
           <input placeholder="URL de imagen" value={form.image} onChange={e => setForm({...form, image: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors" />
-          <input placeholder="Tecnologías (separadas por coma)" value={form.techs} onChange={e => setForm({...form, techs: e.target.value})}
+          <input placeholder="Tecnologías (separadas por coma: React, Node.js, MongoDB)" value={form.techs} onChange={e => setForm({...form, techs: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors md:col-span-2" />
-          <input placeholder="URL de GitHub" value={form.github_url} onChange={e => setForm({...form, github_url: e.target.value})}
+          <input placeholder="URL de GitHub (opcional)" value={form.github_url} onChange={e => setForm({...form, github_url: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors" />
-          <input placeholder="URL del proyecto en vivo" value={form.live_url} onChange={e => setForm({...form, live_url: e.target.value})}
+          <input placeholder="URL del proyecto en vivo (opcional)" value={form.live_url} onChange={e => setForm({...form, live_url: e.target.value})}
             className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors" />
           <div className="flex items-center gap-3 md:col-span-2">
             <input type="checkbox" id="featured" checked={form.featured} onChange={e => setForm({...form, featured: e.target.checked})} />
