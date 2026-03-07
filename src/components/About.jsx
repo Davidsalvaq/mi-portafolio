@@ -3,28 +3,32 @@ import { AnimatedSection, AnimatedItem } from './AnimatedSection'
 
 const API_URL = 'https://mi-portafolio-api-1.onrender.com'
 
-function useCountUp(target, duration = 2000, start = false) {
+function useCountUp(target, duration = 3000, start = false) {
   const [count, setCount] = useState(0)
   useEffect(() => {
-    if (!start || typeof target === 'string') return
+    if (!start) return
     let startTime = null
     const animate = (timestamp) => {
       if (!startTime) startTime = timestamp
       const progress = Math.min((timestamp - startTime) / duration, 1)
-      setCount(Math.floor(progress * target))
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(eased * target))
       if (progress < 1) requestAnimationFrame(animate)
     }
     requestAnimationFrame(animate)
   }, [target, start])
-  return typeof target === 'string' ? target : count
+  return count
 }
 
 function StatCard({ label, value, started, suffix = '' }) {
-  const count = useCountUp(value, 2000, started)
+  const isString = typeof value === 'string'
+  const numValue = isString ? parseInt(value) : value
+  const count = useCountUp(numValue, 3000, started)
+
   return (
     <div className="border border-[#1e1e1e] p-6 flex flex-col gap-2">
       <span className="font-black text-4xl text-white" style={{fontFamily: 'Syne, sans-serif'}}>
-        {count}{suffix}
+        {started ? count : 0}{suffix}
       </span>
       <span className="text-xs uppercase tracking-[0.2em] text-[#6b6760]">{label}</span>
     </div>
@@ -33,24 +37,29 @@ function StatCard({ label, value, started, suffix = '' }) {
 
 function About() {
   const [stats, setStats] = useState({ projects: 0, years_coding: 2, commitment: '100%' })
+  const [dataLoaded, setDataLoaded] = useState(false)
   const [started, setStarted] = useState(false)
   const statsRef = useRef(null)
 
   useEffect(() => {
     fetch(`${API_URL}/api/stats`)
       .then(r => r.json())
-      .then(d => { if (d.success) setStats(d.data) })
-      .catch(() => {})
+      .then(d => {
+        if (d.success) setStats(d.data)
+        setDataLoaded(true)
+      })
+      .catch(() => setDataLoaded(true))
   }, [])
 
   useEffect(() => {
+    if (!dataLoaded) return
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setStarted(true) },
       { threshold: 0.3 }
     )
     if (statsRef.current) observer.observe(statsRef.current)
     return () => observer.disconnect()
-  }, [])
+  }, [dataLoaded])
 
   const skills = [
     { category: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'JavaScript'] },
@@ -81,11 +90,10 @@ function About() {
             </p>
           </AnimatedSection>
 
-          {/* Stats animados */}
           <div ref={statsRef} className="grid grid-cols-3 gap-3">
             <StatCard label="Proyectos" value={stats.projects} started={started} />
             <StatCard label="Años coding" value={stats.years_coding} started={started} suffix="+" />
-            <StatCard label="Compromiso" value={stats.commitment} started={started} />
+            <StatCard label="Compromiso" value={stats.commitment} started={started} suffix="%" />
           </div>
         </div>
 
