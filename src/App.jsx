@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
+import Marquee from './components/Marquee'
 import About from './components/About'
 import Projects from './components/Projects'
 import Contact from './components/Contact'
@@ -11,6 +12,7 @@ function Portfolio() {
     <div className="bg-[#0a0a0a] text-white min-h-screen">
       <Navbar />
       <Hero />
+      <Marquee />
       <About />
       <Projects />
       <Contact />
