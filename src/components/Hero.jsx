@@ -1,9 +1,10 @@
 function Hero() {
   return (
-    <section id="home" className="min-h-screen flex flex-col justify-end px-6 md:px-12 pb-16 md:pb-20 relative overflow-hidden">
+    <section id="home" className="min-h-screen flex flex-col justify-end px-6 md:px-12 pb-16 md:pb-20 relative">
 
       {/* Grid de fondo */}
-      <div className="absolute inset-0"
+      <div className="absolute inset-0 pointer-events-none"
+        
         style={{
           backgroundImage: 'linear-gradient(rgba(232,213,176,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(232,213,176,0.03) 1px, transparent 1px)',
           backgroundSize: '80px 80px',
@@ -38,7 +39,7 @@ function Hero() {
         </p>
         <div className="flex flex-col items-start sm:items-end gap-4">
           <button
-  onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}
+  onClick={() => window.scrollTo({ top: document.getElementById('projects').offsetTop, behavior: 'smooth' })}
   className="flex items-center gap-3 bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200 hover:-translate-y-0.5">
   Ver proyectos
   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

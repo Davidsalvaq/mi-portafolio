@@ -15,17 +15,23 @@ function Portfolio() {
       <Projects />
       <Contact />
       <footer className="px-6 md:px-12 py-8 border-t border-[#1e1e1e] flex flex-col sm:flex-row justify-between items-center gap-4">
-  <p className="text-xs text-[#6b6760]">© 2026 David Salvador Quijada García</p>
-  <div className="flex items-center gap-4">
-    <p className="text-xs text-[#6b6760]">Diseñado y construido por mí.</p>
-    <a href="/admin" className="text-[#0a0a0a] hover:text-[#1e1e1e] transition-colors duration-200 select-none">·</a>
-  </div>
-</footer>
+        <p className="text-xs text-[#6b6760]">© 2026 David Salvador Quijada García</p>
+        <div className="flex items-center gap-4">
+          <p className="text-xs text-[#6b6760]">Diseñado y construido por mí.</p>
+          <a href="/admin" className="text-[#0a0a0a] hover:text-[#1e1e1e] transition-colors duration-200 select-none">·</a>
+        </div>
+      </footer>
     </div>
   )
 }
 
 function App() {
+  const isAdmin = window.location.pathname.startsWith('/admin')
+
+  if (isAdmin) {
+    return <Admin />
+  }
+
   return (
     <BrowserRouter>
       <Routes>

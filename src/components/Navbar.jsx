@@ -22,9 +22,9 @@ function Navbar() {
 
       {/* Links escritorio */}
       <ul className="hidden md:flex gap-10 list-none items-center">
-        <li><a href="#about" className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors duration-200">Sobre mí</a></li>
-        <li><a href="#projects" className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors duration-200">Proyectos</a></li>
-        <li><a href="#contact" className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors duration-200">Contacto</a></li>
+        <button onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })} className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors duration-200">Sobre mí</button>
+<button onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })} className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors duration-200">Proyectos</button>
+<button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors duration-200">Contacto</button>
       </ul>
 
       {/* Botón hamburguesa móvil */}
