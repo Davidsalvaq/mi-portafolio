@@ -1,5 +1,5 @@
 function Marquee() {
-  const items = ['React', 'Node.js', 'MongoDB', 'Tailwind CSS', 'Express', 'Git', 'JavaScript', 'Vite', 'REST APIs', 'TypeScript']
+  const items = ['React', 'Node.js', 'MongoDB', 'Tailwind CSS', 'Express', 'Git', 'JavaScript', 'Java', 'C++', 'Vite']
 
   const Row = () => (
     <div className="flex shrink-0 gap-8 pr-8">
@@ -19,13 +19,21 @@ function Marquee() {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        .marquee-track {
+          animation: marquee 25s linear infinite;
+        }
+        @media (max-width: 768px) {
+          .marquee-track {
+            animation-duration: 15s;
+          }
+        }
+        .marquee-track:hover {
+          animation-play-state: paused;
+        }
       `}</style>
       <div className="border-y border-[#1e1e1e] py-4 overflow-hidden bg-[#0a0a0a]">
-        <div className="flex" style={{animation: 'marquee 25s linear infinite'}}>
-          <Row />
-          <Row />
-          <Row />
-          <Row />
+        <div className="marquee-track flex">
+          <Row /><Row /><Row /><Row />
         </div>
       </div>
     </>

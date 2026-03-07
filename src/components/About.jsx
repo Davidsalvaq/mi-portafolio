@@ -4,6 +4,7 @@ function About() {
   const skills = [
     { category: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'JavaScript'] },
     { category: 'Backend', items: ['Node.js', 'Express', 'MongoDB', 'REST APIs'] },
+    { category: 'Lenguajes', items: ['JavaScript', 'Java', 'C++'] },
     { category: 'Herramientas', items: ['Git', 'GitHub', 'Vercel', 'Render'] },
   ]
 
@@ -22,11 +23,11 @@ function About() {
           </AnimatedSection>
           <AnimatedSection delay={0.1}>
             <p className="text-[#6b6760] text-sm leading-loose mb-6">
-              Soy estudiante de Ingeniería en Ciencias de la Computación en UNICAH, Honduras. Me especializo en desarrollo web full-stack, combinando diseño y funcionalidad para crear experiencias digitales que tienen impacto real.
-            </p>
-            <p className="text-[#6b6760] text-sm leading-loose">
-              Cada proyecto que construyo es una oportunidad de aprender, iterar y mejorar. No solo escribo código — resuelvo problemas.
-            </p>
+  Estudio Ingeniería en Computación en UNICAH, Honduras. Mientras tanto construyo — interfaces, APIs, aplicaciones completas.
+</p>
+<p className="text-[#6b6760] text-sm leading-loose">
+  Me importa que lo que hago funcione bien y tenga sentido para quien lo usa.
+</p>
           </AnimatedSection>
         </div>
 

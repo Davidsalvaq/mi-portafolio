@@ -13,7 +13,6 @@ function Hero() {
   return (
     <section id="home" className="min-h-screen flex flex-col justify-end px-6 md:px-12 pb-16 md:pb-20 relative">
 
-      {/* Grid de fondo */}
       <div className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage: 'linear-gradient(rgba(232,213,176,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(232,213,176,0.03) 1px, transparent 1px)',
@@ -22,7 +21,6 @@ function Hero() {
         }}
       />
 
-      {/* Badge disponible */}
       <motion.div
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
@@ -34,16 +32,14 @@ function Hero() {
         <span className="sm:hidden">Disponible</span>
       </motion.div>
 
-      {/* Eyebrow */}
       <motion.div
         variants={fadeUp} initial="hidden" animate="visible" custom={0}
         className="flex items-center gap-3 mb-6"
       >
         <div className="w-8 h-px bg-[#c9a96e]" />
-        <span className="text-xs uppercase tracking-[0.15em] text-[#c9a96e]">Desarrollador Web · Honduras</span>
+        <span className="text-xs uppercase tracking-[0.15em] text-[#c9a96e]">Dev · Honduras</span>
       </motion.div>
 
-      {/* Nombre */}
       <motion.h1
         variants={fadeUp} initial="hidden" animate="visible" custom={1}
         className="font-black leading-none mb-8"
@@ -53,7 +49,6 @@ function Hero() {
         <span className="text-transparent" style={{WebkitTextStroke: '1px rgba(240,236,228,0.3)'}}>Quijada</span>
       </motion.h1>
 
-      {/* Bottom row */}
       <motion.div
         variants={fadeUp} initial="hidden" animate="visible" custom={2}
         className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-8 sm:gap-4"
