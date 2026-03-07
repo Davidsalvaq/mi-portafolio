@@ -26,11 +26,11 @@ function StatCard({ label, value, started, suffix = '' }) {
   const count = useCountUp(numValue, 3000, started)
 
   return (
-    <div className="border border-[#1e1e1e] p-6 flex flex-col gap-2">
-      <span className="font-black text-4xl text-white" style={{fontFamily: 'Syne, sans-serif'}}>
+    <div className="border border-[#1e1e1e] p-4 flex flex-col gap-2">
+      <span className="font-black text-3xl text-white" style={{fontFamily: 'Syne, sans-serif'}}>
         {started ? count : 0}{suffix}
       </span>
-      <span className="text-xs uppercase tracking-[0.2em] text-[#6b6760]">{label}</span>
+      <span className="text-[10px] uppercase tracking-widest text-[#6b6760] leading-tight">{label}</span>
     </div>
   )
 }
@@ -55,7 +55,7 @@ function About() {
     if (!dataLoaded) return
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setStarted(true) },
-      { threshold: 0.3 }
+      { threshold: 0.1 }
     )
     if (statsRef.current) observer.observe(statsRef.current)
     return () => observer.disconnect()
