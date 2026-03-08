@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { login, logout, getToken, getProjects, createProject, updateProject, deleteProject } from '../services/api'
+import { login, logout, getToken, getProjects, createProject, updateProject, deleteProject, updateStats } from '../services/api'
 
+const API_URL = 'https://mi-portafolio-api-1.onrender.com'
 const MAX_ATTEMPTS = 5
 const LOCKOUT_KEY = 'admin_lockout'
 const ATTEMPTS_KEY = 'admin_attempts'
-const INACTIVITY_LIMIT = 2 * 60 * 1000 // 2 minutos
+const INACTIVITY_LIMIT = 2 * 60 * 1000
 
 const emptyForm = {
   title_es: '', title_en: '',
@@ -32,8 +33,11 @@ function Admin() {
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
+  const [years, setYears] = useState(2)
+  const [projectsOverride, setProjectsOverride] = useState(0)
+  const [statsMsg, setStatsMsg] = useState('')
+  const [statsLoading, setStatsLoading] = useState(false)
 
-  // Auto-cierre por inactividad
   const resetTimer = useCallback(() => {
     if (!authed) return
     clearTimeout(window._adminTimer)
@@ -55,7 +59,17 @@ function Admin() {
   }, [authed, resetTimer])
 
   useEffect(() => {
-    if (authed) fetchProjects()
+    if (authed) {
+      fetchProjects()
+      fetch(`${API_URL}/api/stats`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.success) {
+            setYears(d.data.years_coding)
+          }
+        })
+        .catch(() => {})
+    }
   }, [authed])
 
   const fetchProjects = async () => {
@@ -66,7 +80,6 @@ function Admin() {
   const handleLogin = async (e) => {
     e.preventDefault()
     if (lockedOut) return
-
     const ok = await login(password)
     if (ok) {
       setAuthed(true)
@@ -78,9 +91,7 @@ function Admin() {
       const newAttempts = attempts + 1
       setAttempts(newAttempts)
       localStorage.setItem(ATTEMPTS_KEY, newAttempts)
-
       if (newAttempts >= MAX_ATTEMPTS) {
-        // Bloqueo máximo técnico: 24 horas
         const lockUntil = Date.now() + 24 * 60 * 60 * 1000
         localStorage.setItem(LOCKOUT_KEY, lockUntil)
         setLockedOut(true)
@@ -130,7 +141,22 @@ function Admin() {
     fetchProjects()
   }
 
-  // ── Login ──────────────────────────────────────────────────────
+  const handleUpdateStats = async (e) => {
+    e.preventDefault()
+    setStatsLoading(true)
+    try {
+      await updateStats({
+        years_coding: parseInt(years),
+        projects_override: parseInt(projectsOverride)
+      })
+      setStatsMsg('✅ Estadísticas actualizadas')
+    } catch {
+      setStatsMsg('❌ Error al actualizar')
+    }
+    setStatsLoading(false)
+    setTimeout(() => setStatsMsg(''), 3000)
+  }
+
   if (!authed) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
@@ -141,20 +167,17 @@ function Admin() {
         <h1 className="font-black text-4xl mb-8 text-white" style={{fontFamily: 'Syne, sans-serif'}}>
           Acceso<br />restringido.
         </h1>
-
         {lockedOut ? (
           <div className="border border-red-900 bg-red-950/30 p-6">
             <p className="text-red-400 text-xs leading-relaxed uppercase tracking-widest mb-2">Acceso bloqueado</p>
             <p className="text-[#e8d5b0] text-sm leading-relaxed">
               Has alcanzado el límite de intentos. Podrás intentarlo de nuevo en <span className="text-white font-bold">2,000 años</span> — ¡aproximadamente el mismo tiempo que tardó en construirse la Gran Muralla China!
             </p>
-            
           </div>
         ) : (
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <input
               type="password"
-              
               placeholder="Contraseña"
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -179,7 +202,6 @@ function Admin() {
     </div>
   )
 
-  // ── Panel ──────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-6 md:px-12 py-12">
       <div className="flex justify-between items-center mb-12">
@@ -194,6 +216,37 @@ function Admin() {
           <a href="/" className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors">← Portafolio</a>
           <button onClick={handleLogout} className="text-xs uppercase tracking-widest text-[#6b6760] hover:text-white transition-colors">Cerrar sesión</button>
         </div>
+      </div>
+
+      {/* Sección estadísticas */}
+      <div className="border border-[#1e1e1e] p-8 mb-12">
+        <h2 className="font-black text-xl text-white mb-2" style={{fontFamily: 'Syne, sans-serif'}}>Estadísticas</h2>
+        <p className="text-xs text-[#6b6760] mb-6">Proyectos en portafolio: <span className="text-white">{projects.length}</span> — Si dejas el override en 0, se muestra el conteo real automático.</p>
+        {statsMsg && <p className="mb-4 text-sm text-[#e8d5b0]">{statsMsg}</p>}
+        <form onSubmit={handleUpdateStats} className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs uppercase tracking-widest text-[#6b6760]">Años coding</label>
+            <input
+              type="number" min="0"
+              value={years}
+              onChange={e => setYears(e.target.value)}
+              className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors w-32"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs uppercase tracking-widest text-[#6b6760]">Proyectos (override)</label>
+            <input
+              type="number" min="0"
+              value={projectsOverride}
+              onChange={e => setProjectsOverride(e.target.value)}
+              className="bg-[#161616] border border-[#1e1e1e] px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a96e] transition-colors w-32"
+            />
+          </div>
+          <button type="submit" disabled={statsLoading}
+            className="bg-[#e8d5b0] text-[#0a0a0a] px-7 py-3 text-xs uppercase tracking-widest font-medium hover:bg-[#c9a96e] transition-all duration-200 disabled:opacity-50">
+            {statsLoading ? 'Guardando...' : 'Actualizar'}
+          </button>
+        </form>
       </div>
 
       {msg && <p className="mb-6 text-sm text-[#e8d5b0]">{msg}</p>}

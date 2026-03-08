@@ -63,3 +63,15 @@ export const deleteProject = async (id) => {
   })
   return response.json()
 }
+// ── Stats admin ─────────────────────────────────────────────────
+export const updateStats = async (data) => {
+  const response = await fetch(`${API_URL}/api/stats`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify(data)
+  })
+  return response.json()
+}
