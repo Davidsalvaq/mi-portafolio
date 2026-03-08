@@ -61,6 +61,12 @@ function About() {
     return () => observer.disconnect()
   }, [dataLoaded])
 
+  useEffect(() => {
+  if (!dataLoaded) return
+  const fallback = setTimeout(() => setStarted(true), 3000)
+  return () => clearTimeout(fallback)
+}, [dataLoaded])
+
   const skills = [
     { category: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'JavaScript'] },
     { category: 'Backend', items: ['Node.js', 'Express', 'MongoDB', 'REST APIs'] },

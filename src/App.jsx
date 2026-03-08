@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -12,13 +12,17 @@ import LoadingScreen from './components/LoadingScreen'
 function Portfolio() {
   const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    fetch('https://mi-portafolio-api-1.onrender.com/api/stats').catch(() => {})
+  }, [])
+
   return (
     <>
       {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
       <div
-  className="bg-[#0a0a0a] text-white min-h-screen"
- style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.9s ease 0.1s' }}
->
+        className="bg-[#0a0a0a] text-white min-h-screen"
+        style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.9s ease 0.1s' }}
+      >
         <Navbar />
         <Hero />
         <Marquee />
