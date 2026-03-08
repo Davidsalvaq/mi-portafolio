@@ -37,35 +37,49 @@ function StatCard({ label, value, started, suffix = '' }) {
 
 function About() {
   const [stats, setStats] = useState({ projects: 0, years_coding: 2, commitment: '100%' })
-  const [dataLoaded, setDataLoaded] = useState(false)
   const [started, setStarted] = useState(false)
   const statsRef = useRef(null)
+  const startedRef = useRef(false)
 
   useEffect(() => {
     fetch(`${API_URL}/api/stats`)
       .then(r => r.json())
       .then(d => {
         if (d.success) setStats(d.data)
-        setDataLoaded(true)
       })
-      .catch(() => setDataLoaded(true))
+      .catch(() => {})
+      .finally(() => {
+        // Espera a que los stats sean visibles o dispara después de 500ms
+        const check = () => {
+          if (startedRef.current) return
+          if (statsRef.current) {
+            const rect = statsRef.current.getBoundingClientRect()
+            if (rect.top < window.innerHeight) {
+              startedRef.current = true
+              setStarted(true)
+              return
+            }
+          }
+          // Si no son visibles, observer se encarga
+        }
+        check()
+        setTimeout(check, 500)
+      })
   }, [])
 
   useEffect(() => {
-    if (!dataLoaded) return
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setStarted(true) },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting && !startedRef.current) {
+          startedRef.current = true
+          setStarted(true)
+        }
+      },
+      { threshold: 0.05 }
     )
     if (statsRef.current) observer.observe(statsRef.current)
     return () => observer.disconnect()
-  }, [dataLoaded])
-
-  useEffect(() => {
-  if (!dataLoaded) return
-  const fallback = setTimeout(() => setStarted(true), 3000)
-  return () => clearTimeout(fallback)
-}, [dataLoaded])
+  }, [])
 
   const skills = [
     { category: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'JavaScript'] },
